@@ -3,17 +3,201 @@
         <v-col>
             <v-card elevation="7">
                 <v-card class="pa-2" color="#424242" dark>Lista de contactos</v-card>
+                <!--<h2 class="text-center">CRUD usando APIREST con Node JS</h2>-->
+                <!-- Botón CREAR -->
+                <v-flex class="text-center align-center">
+                    <v-btn class="mx-2 mt-4" fab dark color="#00B0FF" @click="formNuevo()"><v-icon
+                            dark>mdi-plus</v-icon></v-btn>
+                </v-flex>
+
+                <v-card class="mx-auto mt-5 ml-5 mr-5 mb-5" color="transparent" max-width="1280" elevation="8">
+
+                    <!-- Tabla y formulario -->
+                    <v-simple-table class="mt-5">
+                        <template #default>
+                            <thead>
+                                <tr class="indigo darken-4">
+                                    <th class="white--text">ID</th>
+                                    <th class="white--text">NOMBRE</th>
+                                    <th class="white--text">TELEFONO</th>
+                                    <th class="white--text">CIUDAD</th>
+                                    <th class="white--text text-center">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="contactoItem in contactos" :key="contactoItem.id">
+                                    <td>{{ contactoItem.id }}</td>
+                                    <td>{{ contactoItem.nombre }}</td>
+                                    <td>{{ contactoItem.telefono }}</td>
+                                    <td>{{ contactoItem.ciudad }}</td>
+                                    <td class="text-center">
+                                        <!-- Botón de Edición -->
+                                        <v-btn small fab dark color="#00BCD4"
+                                            @click="formEditar(contactoItem.id, contactoItem.nombre, contactoItem.telefono, contactoItem.ciudad)">
+                                            <v-icon>mdi-pencil</v-icon>
+                                        </v-btn>
+                                        <!-- Botón de Eliminación -->
+                                        <v-btn small fab dark color="#E53935" @click="borrar(contactoItem.id)">
+                                            <v-icon>mdi-delete</v-icon>
+                                        </v-btn>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </template>
+                    </v-simple-table>
+                </v-card>
+                <!-- Componente de Diálogo para CREAR y EDITAR -->
+                <v-dialog v-model="dialog" max-width="700">
+                    <v-card>
+                        <v-card-title class="blue darken-2 white--text">Contactos</v-card-title>
+                        <v-form>
+                            <v-card-text>
+                                <v-container>
+                                    <v-row>
+                                        <v-col cols="12" md="12">
+                                            <v-text-field v-model="contacto.id" hidden></v-text-field>
+                                            <v-text-field v-model="contacto.nombre" label="Nombre" solo
+                                                required></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="12">
+                                            <v-text-field v-model="contacto.telefono" label="Telefono" solo
+                                                required></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="12">
+                                            <!-- <v-text-field v-model="contacto.ciudad" label="Ciudad" solo
+                                                required></v-text-field> -->
+                                            <label for="" style="font-size: 20px;">Ciudades</label>
+                                            <br>
+                                            <br>
+                                            <v-select v-model="contacto.ciudad" :items="tags" label="Seleccione un elemento"
+                                                multiple>
+                                                <template #selection="{ item, index }">
+                                                    <v-chip v-if="index < 3">
+                                                        <span>{{ item }}</span>
+                                                    </v-chip>
+                                                    <span v-if="index === 3"
+                                                        class="text-grey text-caption align-self-center">
+                                                        (+{{ contacto.ciudad.length - 3 }} others)
+                                                    </span>
+                                                </template>
+                                            </v-select>
+                                        </v-col>
+                                    </v-row>
+                                </v-container>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="blue-grey" dark @click="dialog = false">Cancelar</v-btn>
+                                <v-btn color="blue darken-2" dark type="submit" @click="guardar()">Guardar</v-btn>
+                            </v-card-actions>
+
+                        </v-form>
+                    </v-card>
+                </v-dialog>
             </v-card>
         </v-col>
     </v-row>
 </template>
 
 <script>
-    export default{
+import Swal from 'sweetalert2';
+export default {
 
+    data() {
+        return {
+            contactos: [],
+            dialog: false,
+            operacion: '',
+            contacto: {
+                id: null,
+                nombre: '',
+                telefono: '',
+                ciudad: []
+            },
+            tags: [
+                'Villavicencio', 'Acacias', 'Guamal', 'castilla la nueva'
+            ]
+            
+        }
+    },
+    created() {
+        this.mostrar()
+    },
+    methods: {
+        mostrar() {
+            this.$axios.get('contactos/')
+                .then(response => {
+                    this.contactos = response.data;
+                })
+        },
+        crear() {
+            alert(this.contacto.ciudad);
+
+            const parametros = { nombre: this.contacto.nombre, telefono: this.contacto.telefono, ciudad: this.contacto.ciudad };
+            this.$axios.post('contactos/', parametros)
+                .then(response => {
+                    this.mostrar();
+                });
+            this.contacto.nombre = "";
+            this.contacto.telefono = "";
+            this.contacto.ciudad = "";
+        },
+        editar() {
+            const parametros = { nombre: this.contacto.nombre, telefono: this.contacto.telefono, ciudad: this.contacto.ciudad, id: this.contacto.id };
+
+            this.$axios.put('contactos/' + this.contacto.id, parametros)
+                .then(response => {
+                    this.mostrar();
+                })
+                .catch((err) => {
+                    alert(err)
+                })
+        },
+        borrar(id) {
+            Swal.fire({
+                title: '¿Confirma eliminar el registro?',
+                confirmButtonText: `Confirmar`,
+                showCancelButton: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.$axios.delete('contactos/' + id)
+                        .then(response => {
+                            this.mostrar();
+                        });
+                    Swal.fire('¡Eliminado!', '', 'success');
+                } else if (result.isDenied) {
+                    alert(result.isDenied);
+                }
+            });
+        },
+        guardar() {
+            if (this.operacion === 'crear') {
+                this.crear();
+            }
+            if (this.operacion === 'editar') {
+                this.editar();
+            }
+            this.dialog = false;
+
+        },
+        formNuevo() {
+            this.dialog = true;
+            this.operacion = 'crear';
+            this.contacto.nombre = '';
+            this.contacto.telefono = '';
+            this.contacto.ciudad = [];            
+
+        },
+        formEditar(id, nombre, telefono, ciudad) {
+            this.contacto.id = id;
+            this.contacto.nombre = nombre;
+            this.contacto.telefono = telefono;
+            this.contacto.ciudad = ciudad;
+            this.dialog = true;
+            this.operacion = 'editar';
+        }
     }
+}
 </script>
 
-<style>
-
-</style>
+<style></style>

@@ -27,3 +27,10 @@ Route::apiResources([
 ]);
 Route::get('/message-templates', [MessageController::class, 'loadMessageTemplates']);
 Route::post('/send-message-templates', [MessageController::class, 'sendMessageTemplate']);
+
+//Contactos
+Route::get('/contactos', 'App\Http\Controllers\ContactoController@index');//mostrar todos los registros
+Route::post('/contactos', 'App\Http\Controllers\ContactoController@store');//crear un registro
+Route::put('/contactos/{id}', 'App\Http\Controllers\ContactoController@update');//actualizare un registro
+Route::delete('/contactos/{id}', 'App\Http\Controllers\ContactoController@destroy');//actualizare un registro
+
