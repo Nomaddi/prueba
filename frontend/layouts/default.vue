@@ -75,6 +75,11 @@ export default {
           title: 'Contactos',
           to: '/users',
         },
+        {
+          icon: 'mdi-arrange-bring-forward',
+          title: 'Tags',
+          to: '/Tags',
+        },
         
       ],
       miniVariant: false,

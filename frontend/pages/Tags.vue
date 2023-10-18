@@ -1,8 +1,8 @@
 <template>
     <v-row>
         <v-col>
-            <v-card elevation="7" class="user-list">
-                <v-card class="pa-2" color="#424242" dark>Lista de contactos</v-card>
+            <v-card elevation="7" class="tags-list">
+                <v-card class="pa-2" color="#424242" dark>Lista de tags</v-card>
                 <!--<h2 class="text-center">CRUD usando APIREST con Node JS</h2>-->
                 <!-- Botón CREAR -->
                 <v-flex class="text-center align-center">
@@ -19,30 +19,21 @@
                                 <tr class="indigo darken-4">
                                     <th class="white--text">ID</th>
                                     <th class="white--text">NOMBRE</th>
-                                    <th class="white--text">TELEFONO</th>
-                                    <th class="white--text">CIUDAD</th>
                                     <th class="white--text text-center">ACCIONES</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="contactoItem in contactos" :key="contactoItem.id">
-                                    <td>{{ contactoItem.id }}</td>
-                                    <td>{{ contactoItem.nombre }}</td>
-                                    <td>{{ contactoItem.telefono }}</td>
-                                    <td>
-                                        <v-chip v-for="(ciudad, index) in contactoItem.ciudad.split(',')" :key="index"
-                                            class="ma-2" :color="coloresCiudades[ciudad]" label>
-                                            {{ ciudad }}
-                                        </v-chip>
-                                    </td>
+                                <tr v-for="tagsItem in tags" :key="tagsItem.id">
+                                    <td>{{ tagsItem.id }}</td>
+                                    <td>{{ tagsItem.nombre }}</td>
                                     <td class="text-center">
                                         <!-- Botón de Edición -->
                                         <v-btn small fab dark color="#00BCD4"
-                                            @click="formEditar(contactoItem.id, contactoItem.nombre, contactoItem.telefono, contactoItem.ciudad)">
+                                            @click="formEditar(tagsItem.id, tagsItem.nombre)">
                                             <v-icon>mdi-pencil</v-icon>
                                         </v-btn>
                                         <!-- Botón de Eliminación -->
-                                        <v-btn small fab dark color="#E53935" @click="borrar(contactoItem.id)">
+                                        <v-btn small fab dark color="#E53935" @click="borrar(tagsItem.id)">
                                             <v-icon>mdi-delete</v-icon>
                                         </v-btn>
                                     </td>
@@ -54,38 +45,15 @@
                 <!-- Componente de Diálogo para CREAR y EDITAR -->
                 <v-dialog v-model="dialog" max-width="700">
                     <v-card>
-                        <v-card-title class="blue darken-2 white--text">Contactos</v-card-title>
+                        <v-card-title class="blue darken-2 white--text">tags</v-card-title>
                         <v-form>
                             <v-card-text>
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" md="12">
-                                            <v-text-field v-model="contacto.id" hidden></v-text-field>
-                                            <v-text-field v-model="contacto.nombre" label="Nombre" solo
+                                            <v-text-field v-model="tag.id" hidden></v-text-field>
+                                            <v-text-field v-model="tag.nombre" label="Nombre" solo
                                                 required></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" md="12">
-                                            <v-text-field v-model="contacto.telefono" label="Telefono" solo
-                                                required></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" md="12">
-                                            <!-- <v-text-field v-model="contacto.ciudad" label="Ciudad" solo
-                                                required></v-text-field> -->
-                                            <label for="" style="font-size: 20px;">Tags</label>
-                                            <br>
-                                            <br>
-                                            <v-select v-model="contacto.ciudad" :items="tags" label="Seleccione un elemento"
-                                                item-text="nombre" multiple>
-                                                <template #selection="{ item, index }">
-                                                    <v-chip v-if="index < 3">
-                                                        <span>{{ item.nombre }}</span>
-                                                    </v-chip>
-                                                    <span v-if="index === 3"
-                                                        class="text-grey text-caption align-self-center">
-                                                        (+{{ contacto.ciudad.length - 3 }} others)
-                                                    </span>
-                                                </template>
-                                            </v-select>
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -110,56 +78,38 @@ export default {
 
     data() {
         return {
-            contactos: [],
             tags: [],
             dialog: false,
             operacion: '',
-            contacto: {
+            tag: {
                 id: null,
                 nombre: '',
-                telefono: '',
-                ciudad: []
             },
-            coloresCiudades: {
-                Villavicencio: "primary",
-                Acacias: "green",
-                Guamal: "red"
-            },
-
+            
         }
     },
     created() {
         this.mostrar()
-        this.mostrar2()
     },
     methods: {
         mostrar() {
-            this.$axios.get('contactos/')
-                .then(response => {
-                    this.contactos = response.data;
-                })
-        },
-        mostrar2() {
             this.$axios.get('tags/')
                 .then(response => {
                     this.tags = response.data;
                 })
         },
-        crear() {
-            alert(this.contacto.ciudad);
-            const parametros = { nombre: this.contacto.nombre, telefono: this.contacto.telefono, ciudad: this.contacto.ciudad };
-            this.$axios.post('contactos/', parametros)
+        crear() {          
+            const parametros = { nombre: this.tag.nombre };
+            this.$axios.post('tags/', parametros)
                 .then(response => {
                     this.mostrar();
                 });
-            this.contacto.nombre = "";
-            this.contacto.telefono = "";
-            this.contacto.ciudad = [];
+            this.tag.nombre = "";
         },
         editar() {
-            const parametros = { nombre: this.contacto.nombre, telefono: this.contacto.telefono, ciudad: this.contacto.ciudad, id: this.contacto.id };
+            const parametros = { nombre: this.tag.nombre, id: this.tag.id };
 
-            this.$axios.put('contactos/' + this.contacto.id, parametros)
+            this.$axios.put('tags/' + this.tag.id, parametros)
                 .then(response => {
                     this.mostrar();
                 })
@@ -174,7 +124,7 @@ export default {
                 showCancelButton: true,
             }).then((result) => {
                 if (result.isConfirmed) {
-                    this.$axios.delete('contactos/' + id)
+                    this.$axios.delete('tags/' + id)
                         .then(response => {
                             this.mostrar();
                         });
@@ -197,16 +147,12 @@ export default {
         formNuevo() {
             this.dialog = true;
             this.operacion = 'crear';
-            this.contacto.nombre = '';
-            this.contacto.telefono = '';
-            this.contacto.ciudad = [];
+            this.tag.nombre = '';           
 
         },
         formEditar(id, nombre, telefono, ciudad) {
-            this.contacto.id = id;
-            this.contacto.nombre = nombre;
-            this.contacto.telefono = telefono;
-            this.contacto.ciudad = ciudad.split(','); // Convierte la cadena en un array
+            this.tag.id = id;
+            this.tag.nombre = nombre;
             this.dialog = true;
             this.operacion = 'editar';
         }
@@ -215,7 +161,7 @@ export default {
 </script>
 
 <style>
-.user-list {
-    height: 82vh;
-}
+    .tags-list{
+        height: 82vh;
+    }
 </style>

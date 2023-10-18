@@ -33,7 +33,7 @@
     <v-col md="9">
       <v-card elevation="7">
         <v-card class="chat-box wpp-bg" color="#efeae2">
-          <v-card class="pa-2" color="#424242" dark>Ali Connors</v-card>
+          <v-card class="pa-2 cabecera" color="#424242" dark>Ali Connors</v-card>
           <div
             v-for="(message, index) in messages"
             :key="index"
@@ -247,14 +247,15 @@ export default {
   display: none;
 }
 .chat-box {
-  height: 80vh;
+  height: 72vh;
   overflow-y: scroll;
+  padding-top: 30px;
 }
 .message-card {
   max-width: 60%;
 }
 .chat-list {
-  height: 85vh;
+  height: 82vh;
 }
 .wpp-bg {
   background-image: url('/bg-whatsapp.png');
@@ -263,5 +264,11 @@ export default {
 }
 .img-msg {
   max-width: 300px;
+}
+.cabecera{
+  position: fixed;
+  top: 75px;
+  width: 100%;
+  z-index: 999;
 }
 </style>
