@@ -34,3 +34,9 @@ Route::post('/contactos', 'App\Http\Controllers\ContactoController@store');//cre
 Route::put('/contactos/{id}', 'App\Http\Controllers\ContactoController@update');//actualizare un registro
 Route::delete('/contactos/{id}', 'App\Http\Controllers\ContactoController@destroy');//actualizare un registro
 
+// Tags
+Route::get('/tags', 'App\Http\Controllers\TagController@index');//mostrar todos los registros
+Route::post('/tags', 'App\Http\Controllers\TagController@store');//crear un registro
+Route::put('/tags/{id}', 'App\Http\Controllers\TagController@update');//actualizare un registro
+Route::delete('/tags/{id}', 'App\Http\Controllers\TagController@destroy');//actualizare un registro
+

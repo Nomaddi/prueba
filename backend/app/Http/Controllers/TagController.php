@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Exception;
-use App\Models\Contacto;
+use App\Models\Tags;
 
-class ContactoController extends Controller
+class TagController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,8 +15,8 @@ class ContactoController extends Controller
      */
     public function index()
     {
-        $contactos = Contacto::all();
-        return $contactos;
+        $tags = Tags::all();
+        return $tags;
     }
 
     /**
@@ -38,15 +38,13 @@ class ContactoController extends Controller
     public function store(Request $request)
     {
         try{
-            $contacto = new Contacto();
-            $contacto -> nombre     = $request->nombre;
-            $contacto -> telefono   = $request->telefono;
-            $contacto -> ciudad     = implode(',', $request->ciudad);
-            $contacto->save();
+            $tags = new Tags();
+            $tags -> nombre     = $request->nombre;
+            $tags->save();
 
             return response()->json([
                 'success' => true,
-                'data' => $contacto,
+                'data' => $tags,
             ], 200);
 
         } catch (Exception $e){
@@ -86,26 +84,24 @@ class ContactoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
         try{
-        $contacto = Contacto::findOrFail($request->id);
-        $contacto -> nombre     = $request->nombre;
-        $contacto -> telefono   = $request->telefono;
-        $contacto -> ciudad     = implode(',', $request->ciudad);
-        $contacto->save();
-
-        return response()->json([
-            'success' => true,
-            'data' => $contacto,
-        ], 200);
-        } catch(Exception $e){
+            $tags = Tags::findOrFail($request->id);
+            $tags -> nombre     = $request->nombre;
+            dd($tags->ciudad);
+            $tags->save();
+    
             return response()->json([
-                'success'  => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-        
+                'success' => true,
+                'data' => $tags,
+            ], 200);
+            } catch(Exception $e){
+                return response()->json([
+                    'success'  => false,
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
     }
 
     /**
@@ -116,7 +112,7 @@ class ContactoController extends Controller
      */
     public function destroy(Request $request)
     {
-        $contacto = Contacto::destroy($request->id);
-        return $contacto;
+        $tags = Tags::destroy($request->id);
+        return $tags;
     }
 }

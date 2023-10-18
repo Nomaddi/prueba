@@ -339,6 +339,7 @@ class MessageController extends Controller
                     'parameters' => [[
                         'type' => $type,
                         $type => [
+                            "filename" => "Contrato.pdf",
                             'link' => $input['header_url'],
                         ]
                     ]],
