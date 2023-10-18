@@ -19,6 +19,7 @@
                                 <tr class="indigo darken-4">
                                     <th class="white--text">ID</th>
                                     <th class="white--text">NOMBRE</th>
+                                    <th class="white--text">COLOR</th>
                                     <th class="white--text text-center">ACCIONES</th>
                                 </tr>
                             </thead>
@@ -26,10 +27,14 @@
                                 <tr v-for="tagsItem in tags" :key="tagsItem.id">
                                     <td>{{ tagsItem.id }}</td>
                                     <td>{{ tagsItem.nombre }}</td>
+                                    <td><v-chip class="ma-2" :color="tagsItem.color">
+                                            {{ tagsItem.color }}
+                                        </v-chip>
+                                    </td>
                                     <td class="text-center">
                                         <!-- Botón de Edición -->
                                         <v-btn small fab dark color="#00BCD4"
-                                            @click="formEditar(tagsItem.id, tagsItem.nombre)">
+                                            @click="formEditar(tagsItem.id, tagsItem.nombre, tagsItem.color)">
                                             <v-icon>mdi-pencil</v-icon>
                                         </v-btn>
                                         <!-- Botón de Eliminación -->
@@ -52,8 +57,12 @@
                                     <v-row>
                                         <v-col cols="12" md="12">
                                             <v-text-field v-model="tag.id" hidden></v-text-field>
-                                            <v-text-field v-model="tag.nombre" label="Nombre" solo
-                                                required></v-text-field>
+                                            <v-text-field v-model="tag.nombre" label="Nombre" solo required></v-text-field>
+                                            <div>
+                                                Selecione un color para la etiqueta
+                                            </div>
+                                            <br>
+                                            <v-color-picker v-model="tag.color" @input="updateColor" />
                                         </v-col>
                                     </v-row>
                                 </v-container>
@@ -74,6 +83,7 @@
 
 <script>
 import Swal from 'sweetalert2';
+// import VueTheMask from 'vue-the-mask';
 export default {
 
     data() {
@@ -84,8 +94,9 @@ export default {
             tag: {
                 id: null,
                 nombre: '',
+                color: '#000000',
             },
-            
+
         }
     },
     created() {
@@ -98,16 +109,17 @@ export default {
                     this.tags = response.data;
                 })
         },
-        crear() {          
-            const parametros = { nombre: this.tag.nombre };
+        crear() {
+            const parametros = { nombre: this.tag.nombre, color: this.tag.color };
             this.$axios.post('tags/', parametros)
                 .then(response => {
                     this.mostrar();
                 });
             this.tag.nombre = "";
+            this.tag.color = "";
         },
         editar() {
-            const parametros = { nombre: this.tag.nombre, id: this.tag.id };
+            const parametros = { nombre: this.tag.nombre, color: this.tag.color, id: this.tag.id };
 
             this.$axios.put('tags/' + this.tag.id, parametros)
                 .then(response => {
@@ -147,21 +159,23 @@ export default {
         formNuevo() {
             this.dialog = true;
             this.operacion = 'crear';
-            this.tag.nombre = '';           
+            this.tag.nombre = '';
+            this.tag.color = '';
 
         },
-        formEditar(id, nombre, telefono, ciudad) {
+        formEditar(id, nombre, color) {
             this.tag.id = id;
             this.tag.nombre = nombre;
+            this.tag.color = color;
             this.dialog = true;
             this.operacion = 'editar';
-        }
+        },
     }
 }
 </script>
 
 <style>
-    .tags-list{
-        height: 82vh;
-    }
+.tags-list {
+    height: 82vh;
+}
 </style>

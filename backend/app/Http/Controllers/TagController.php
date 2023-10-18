@@ -39,7 +39,8 @@ class TagController extends Controller
     {
         try{
             $tags = new Tags();
-            $tags -> nombre     = $request->nombre;
+            $tags -> nombre    = $request->nombre;
+            $tags -> color     = $request->color;
             $tags->save();
 
             return response()->json([
@@ -89,7 +90,7 @@ class TagController extends Controller
         try{
             $tags = Tags::findOrFail($request->id);
             $tags -> nombre     = $request->nombre;
-            dd($tags->ciudad);
+            $tags -> color     = $request->color;
             $tags->save();
     
             return response()->json([

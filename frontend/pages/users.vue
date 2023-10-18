@@ -61,16 +61,15 @@
                                     <v-row>
                                         <v-col cols="12" md="12">
                                             <v-text-field v-model="contacto.id" hidden></v-text-field>
-                                            <v-text-field v-model="contacto.nombre" label="Nombre" solo
+                                            <v-text-field v-model="contacto.nombre" label="Nombre" placeholder="Ingrese nombre de contacto" solo
                                                 required></v-text-field>
                                         </v-col>
                                         <v-col cols="12" md="12">
-                                            <v-text-field v-model="contacto.telefono" label="Telefono" solo
-                                                required></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" md="12">
-                                            <!-- <v-text-field v-model="contacto.ciudad" label="Ciudad" solo
+                                            <!-- <v-text-field v-model="contacto.telefono" label="Telefono" solo
                                                 required></v-text-field> -->
+                                            <vue-tel-input-vuetify v-model="contacto.telefono" :only-countries="['CO']" :placeholder="'Ingrese su número de teléfono'" label="Telefono" solo required></vue-tel-input-vuetify>
+                                        </v-col>
+                                        <v-col cols="12" md="12">
                                             <label for="" style="font-size: 20px;">Tags</label>
                                             <br>
                                             <br>
@@ -106,6 +105,7 @@
 
 <script>
 import Swal from 'sweetalert2';
+// import VueTelInputVuetify from 'vue-tel-input-vuetify';
 export default {
 
     data() {
@@ -125,7 +125,6 @@ export default {
                 Acacias: "green",
                 Guamal: "red"
             },
-
         }
     },
     created() {
@@ -147,7 +146,8 @@ export default {
         },
         crear() {
             alert(this.contacto.ciudad);
-            const parametros = { nombre: this.contacto.nombre, telefono: this.contacto.telefono, ciudad: this.contacto.ciudad };
+            const numeroCompleto = '+57' + this.contacto.telefono;
+            const parametros = { nombre: this.contacto.nombre, telefono: numeroCompleto, ciudad: this.contacto.ciudad };
             this.$axios.post('contactos/', parametros)
                 .then(response => {
                     this.mostrar();
