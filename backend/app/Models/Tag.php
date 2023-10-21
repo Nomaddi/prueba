@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Contacto extends Model
+class Tag extends Model
 {
     use HasFactory;
-    public function tags(){
-        return $this->belongsToMany(Tag::class, 'contacto_tag', 'contacto_id', 'tag_id');
+    public function contactos(){
+        return $this->belongsToMany(Contacto::class, 'contacto_tag', 'tag_id', 'contacto_id');
     }
 }

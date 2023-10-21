@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Exception;
 use App\Models\Contacto;
+use App\Models\Tag;
 
 class ContactoController extends Controller
 {
@@ -15,7 +16,7 @@ class ContactoController extends Controller
      */
     public function index()
     {
-        $contactos = Contacto::all();
+        $contactos = Contacto::with('tags')->get();
         return $contactos;
     }
 
@@ -37,21 +38,26 @@ class ContactoController extends Controller
      */
     public function store(Request $request)
     {
-        try{
+
+        try {
             $contacto = new Contacto();
-            $contacto -> nombre     = $request->nombre;
-            $contacto -> telefono   = $request->telefono;
-            $contacto -> ciudad     = implode(',', $request->ciudad);
+            $contacto->nombre = $request->nombre;
+            $contacto->telefono = $request->telefono;
             $contacto->save();
+
+            $tag = Tag::whereIn('id', $request->ciudad)->get();
+
+            if ($tag->count() > 0) {
+                $contacto->tags()->attach($tag);
+            }
 
             return response()->json([
                 'success' => true,
                 'data' => $contacto,
             ], 200);
-
-        } catch (Exception $e){
+        } catch (Exception $e) {
             return response()->json([
-                'success'  => false,
+                'success' => false,
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -88,24 +94,26 @@ class ContactoController extends Controller
      */
     public function update(Request $request)
     {
-        try{
-        $contacto = Contacto::findOrFail($request->id);
-        $contacto -> nombre     = $request->nombre;
-        $contacto -> telefono   = $request->telefono;
-        $contacto -> ciudad     = implode(',', $request->ciudad);
-        $contacto->save();
+        try {
+            $contacto = Contacto::findOrFail($request->id);
+            $contacto->nombre     = $request->nombre;
+            $contacto->telefono   = $request->telefono;
+            $contacto->save();
 
-        return response()->json([
-            'success' => true,
-            'data' => $contacto,
-        ], 200);
-        } catch(Exception $e){
+            $tagIds = $request->ciudad; // Obtén un array de IDs de etiquetas a asignar al contacto
+
+            $contacto->tags()->sync($tagIds);
+
+            return response()->json([
+                'success' => true,
+                'data' => $contacto,
+            ], 200);
+        } catch (Exception $e) {
             return response()->json([
                 'success'  => false,
                 'error' => $e->getMessage(),
             ], 500);
         }
-        
     }
 
     /**
@@ -116,7 +124,17 @@ class ContactoController extends Controller
      */
     public function destroy(Request $request)
     {
-        $contacto = Contacto::destroy($request->id);
-        return $contacto;
+        $contacto = Contacto::findOrFail($request->id);
+
+        // Elimina las relaciones de muchos a muchos con las etiquetas
+        $contacto->tags()->detach();
+
+        // Luego elimina el contacto
+        $contacto->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Contacto eliminado correctamente.',
+        ], 200);
     }
 }

@@ -8,7 +8,6 @@
         </v-flex>
 
         <v-card class="mx-auto mt-5 ml-5 mr-5 mb-5" color="transparent" max-width="1280" elevation="8">
-          <!-- Tabla y formulario -->
           <v-simple-table class="mt-5">
             <template #default>
               <thead>
@@ -26,14 +25,16 @@
                   <td>{{ contactoItem.nombre }}</td>
                   <td>{{ contactoItem.telefono }}</td>
                   <td>
-                    <v-chip v-for="(ciudad, index) in contactoItem.ciudad.split(',')" :key="index" class="ma-2"
-                      :color="coloresCiudades[ciudad]" label>
-                      {{ ciudad }}
+                    <v-chip class="ma-2" v-for="tag in contactoItem.tags" :key="tag.id" :color="tag.color">
+                      {{ tag.nombre }}
                     </v-chip>
                   </td>
+
+                  <!-- <td><v-chip class="ma-2" :color="tagsItem.color">{{ tagsItem.color }}</v-chip></td> -->
+
                   <td class="text-center">
                     <v-btn small fab dark color="#00BCD4"
-                      @click="formEditar(contactoItem.id, contactoItem.nombre, contactoItem.telefono, contactoItem.ciudad)">
+                      @click="formEditar(contactoItem.id, contactoItem.nombre, contactoItem.telefono, contactoItem.tags)">
                       <v-icon>mdi-pencil</v-icon>
                     </v-btn>
                     <v-btn small fab dark color="#E53935" @click="borrar(contactoItem.id)">
@@ -45,6 +46,7 @@
             </template>
           </v-simple-table>
         </v-card>
+
         <!-- Componente de Diálogo para CREAR y EDITAR -->
         <v-dialog v-model="dialog" max-width="700">
           <v-card>
@@ -59,9 +61,8 @@
                         required></v-text-field>
                     </v-col>
                     <v-col cols="12" md="12">
-                      <vue-tel-input-vuetify v-model="contacto.telefono" :only-countries="['CO']"
-                        :placeholder="'Ingrese su número de teléfono'" label="Telefono" solo
-                        required></vue-tel-input-vuetify>
+                      <vue-tel-input-vuetify v-model="contacto.telefono" :placeholder="'Ingrese su número de teléfono'"
+                        label="Telefono" solo required></vue-tel-input-vuetify>
                     </v-col>
                     <v-col cols="12" md="12">
                       <label for="" style="font-size: 20px;">Tags</label>
@@ -111,11 +112,6 @@ export default {
         telefono: '',
         ciudad: []
       },
-      coloresCiudades: {
-        Villavicencio: "primary",
-        Acacias: "green",
-        Guamal: "red"
-      },
     }
   },
   created() {
@@ -145,22 +141,41 @@ export default {
     },
     crear() {
       const numeroCompleto = '+57' + this.contacto.telefono;
-      const parametros = { nombre: this.contacto.nombre, telefono: numeroCompleto, ciudad: this.contacto.ciudad };
+
+      // Mapear los nombres de las ciudades a sus IDs
+      const ciudadIds = this.contacto.ciudad.map(nombre => {
+        const tag = this.tags.find(tag => tag.nombre === nombre);
+        return tag ? tag.id : null;
+      });
+
+      const parametros = {
+        nombre: this.contacto.nombre,
+        telefono: numeroCompleto,
+        ciudad: ciudadIds // Enviar IDs en lugar de nombres
+      };
+
       this.$axios.post('contactos/', parametros)
         .then(response => {
           this.mostrar();
-          this.dialog = false; // Cierra el diálogo después de crear con éxito.
+          this.dialog = false;
         })
         .catch(error => {
           alert(error);
           Swal.fire('Error', 'No se pudo crear el contacto', 'error');
         });
+
       this.contacto.nombre = "";
       this.contacto.telefono = "";
       this.contacto.ciudad = [];
     },
     editar() {
-      const parametros = { nombre: this.contacto.nombre, telefono: this.contacto.telefono, ciudad: this.contacto.ciudad, id: this.contacto.id };
+      // Mapear los nombres de las ciudades a sus IDs
+      const ciudadIds = this.contacto.ciudad.map(nombre => {
+        const tag = this.tags.find(tag => tag.nombre === nombre);
+        return tag ? tag.id : null;
+      });
+
+      const parametros = { nombre: this.contacto.nombre, telefono: this.contacto.telefono, ciudad: ciudadIds, id: this.contacto.id };
       this.$axios.put('contactos/' + this.contacto.id, parametros)
         .then(response => {
           this.mostrar();
@@ -178,15 +193,25 @@ export default {
         showCancelButton: true,
       }).then((result) => {
         if (result.isConfirmed) {
-          this.$axios.delete('contactos/' + id)
+          this.$axios.delete('tags/' + id)
             .then(response => {
-              this.mostrar();
+              if (response.data.success) {
+                Swal.fire('¡Eliminado!', response.data.message, 'success');
+                this.mostrar();
+              } else {
+                // Si no se pudo eliminar, muestra la advertencia
+                Swal.fire('Error', response.data.message, 'error');
+
+                // También puedes mostrar información sobre los contactos relacionados
+                if (response.data.related_contacts) {
+                  console.log('Contactos relacionados:', response.data.related_contacts);
+                }
+              }
             })
             .catch(error => {
               alert(error);
-              Swal.fire('Error', 'No se pudo eliminar el contacto', 'error');
+              Swal.fire('Error', 'No se pudo eliminar la etiqueta', 'error');
             });
-          Swal.fire('¡Eliminado!', '', 'success');
         } else if (result.isDenied) {
           alert(result.isDenied);
         }
@@ -208,11 +233,11 @@ export default {
       this.contacto.telefono = '';
       this.contacto.ciudad = [];
     },
-    formEditar(id, nombre, telefono, ciudad) {
+    formEditar(id, nombre, telefono, tags) {
       this.contacto.id = id;
       this.contacto.nombre = nombre;
       this.contacto.telefono = telefono.toString(); // Convierte a cadena
-      this.contacto.ciudad = ciudad.split(','); // Se asigna el array directamente.
+      this.contacto.ciudad = tags.map(tag => tag.nombre); // Mapea los nombres de las ciudades
       this.dialog = true;
       this.operacion = 'editar';
     }
@@ -221,7 +246,7 @@ export default {
 </script>
 
 <style>
-.user-list {
+/* .user-list {
   height: 82vh;
-}
+} */
 </style>
