@@ -12,7 +12,6 @@
             <template #default>
               <thead>
                 <tr class="indigo darken-4">
-                  <th class="white--text">ID</th>
                   <th class="white--text">NOMBRE</th>
                   <th class="white--text">TELEFONO</th>
                   <th class="white--text">CIUDAD</th>
@@ -21,7 +20,6 @@
               </thead>
               <tbody>
                 <tr v-for="contactoItem in contactos" :key="contactoItem.id">
-                  <td>{{ contactoItem.id }}</td>
                   <td>{{ contactoItem.nombre }}</td>
                   <td>{{ contactoItem.telefono }}</td>
                   <td>

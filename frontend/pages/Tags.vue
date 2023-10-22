@@ -2,10 +2,15 @@
   <v-row>
     <v-col>
       <v-card elevation="7" class="tags-list">
-        <v-card class="pa-2" color="#424242" dark>Lista de tags</v-card>
-        <v-flex class="text-center align-center">
-          <v-btn class="mx-2 mt-4" fab dark color="#00B0FF" @click="formNuevo()"><v-icon dark>mdi-plus</v-icon></v-btn>
-        </v-flex>
+        <v-card class="pa-2 d-flex mb-6 ac" color="#424242" dark>
+          Lista de tags
+
+          <v-btn dark color="#00B0FF" @click="formNuevo()" class="ml-auto"><v-icon dark>mdi-plus</v-icon> Agregar
+            etiqueta</v-btn>
+
+        </v-card>
+
+
 
         <v-card class="mx-auto mt-5 ml-5 mr-5 mb-5" color="transparent" max-width="1280" elevation="8">
           <v-simple-table class="mt-5">
@@ -154,7 +159,7 @@ export default {
                 }
               }
             })
-            .catch(() => {              
+            .catch(() => {
               Swal.fire('Error', 'No se pudo eliminar la etiqueta', 'error');
             });
         } else if (result.isDenied) {
@@ -195,5 +200,9 @@ export default {
 <style>
 .tags-list {
   height: 82vh;
+}
+
+.ac {
+  align-items: center;
 }
 </style>
