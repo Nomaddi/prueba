@@ -46,7 +46,7 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-footer :absolute="!fixed" app>
+    <v-footer class="fixed-footer" :absolute="!fixed" app>
       <span>&copy; {{ new Date().getFullYear() }}</span>
     </v-footer>
   </v-app>
@@ -80,7 +80,7 @@ export default {
           title: 'Tags',
           to: '/Tags',
         },
-        
+
       ],
       miniVariant: false,
       right: true,
@@ -95,4 +95,9 @@ export default {
 .pre-wrap {
   white-space: pre-wrap;
 }
+.fixed-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
 </style>

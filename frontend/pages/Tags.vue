@@ -4,15 +4,10 @@
       <v-card elevation="7" class="tags-list">
         <v-card class="pa-2 d-flex mb-6 ac" color="#424242" dark>
           Lista de tags
-
           <v-btn dark color="#00B0FF" @click="formNuevo()" class="ml-auto"><v-icon dark>mdi-plus</v-icon> Agregar
             etiqueta</v-btn>
-
         </v-card>
-
-
-
-        <v-card class="mx-auto mt-5 ml-5 mr-5 mb-5" color="transparent" max-width="1280" elevation="8">
+        <!-- <v-card class="mx-auto mt-5 ml-5 mr-5 mb-5" color="transparent" max-width="1280" elevation="8">
           <v-simple-table class="mt-5">
             <template #default>
               <thead>
@@ -43,8 +38,29 @@
               </tbody>
             </template>
           </v-simple-table>
+        </v-card> -->
+        <v-card>
+          <v-card-title>
+            Tags
+            <v-spacer></v-spacer>
+            <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line
+              hide-details></v-text-field>
+          </v-card-title>
+          <v-data-table :headers="headers" :items="tags" :search="search" class="elevation-1">
+            <template v-slot:[`item.colores`]="{ item }">
+              <v-chip class="ma-2" :color="item.color">{{ item.color }}</v-chip>
+            </template>
+            <template v-slot:[`item.actions`]="{ item }">
+              <v-btn small fab dark color="#00BCD4"
+                @click="formEditar(item.id, item.nombre, item.descripcion, item.color)">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn small fab dark color="#E53935" @click="borrar(item.id)">
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
         </v-card>
-
         <v-dialog v-model="dialog" max-width="700">
           <v-card>
             <v-card-title class="blue darken-2 white--text">Tags</v-card-title>
@@ -79,11 +95,10 @@
 
 <script>
 import Swal from 'sweetalert2';
-// import VueTheMask from 'vue-the-mask';
 export default {
-
   data() {
     return {
+      search: '',
       tags: [],
       dialog: false,
       operacion: '',
@@ -93,6 +108,16 @@ export default {
         descripcion: '',
         color: '#000000',
       },
+      headers: [
+        {
+          text: 'Nombre',
+          align: 'start',
+          value: 'nombre',
+        },
+        { text: 'Descripcion', value: 'descripcion' },
+        { text: 'Color', value: 'colores' },
+        { text: 'Actions', value: 'actions', sortable: false },
+      ],
 
     }
   },
@@ -198,10 +223,6 @@ export default {
 </script>
 
 <style>
-.tags-list {
-  height: 82vh;
-}
-
 .ac {
   align-items: center;
 }
