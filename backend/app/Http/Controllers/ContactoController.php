@@ -42,7 +42,10 @@ class ContactoController extends Controller
         try {
             $contacto = new Contacto();
             $contacto->nombre = $request->nombre;
+            $contacto->apellido = $request->apellido;
+            $contacto->correo = $request->correo;
             $contacto->telefono = $request->telefono;
+            $contacto->notas = $request->notas;
             $contacto->save();
 
             $tag = Tag::whereIn('id', $request->ciudad)->get();
@@ -96,8 +99,11 @@ class ContactoController extends Controller
     {
         try {
             $contacto = Contacto::findOrFail($request->id);
-            $contacto->nombre     = $request->nombre;
-            $contacto->telefono   = $request->telefono;
+            $contacto->nombre = $request->nombre;
+            $contacto->apellido = $request->apellido;
+            $contacto->correo = $request->correo;
+            $contacto->telefono = $request->telefono;
+            $contacto->notas = $request->notas;
             $contacto->save();
 
             $tagIds = $request->ciudad; // Obtén un array de IDs de etiquetas a asignar al contacto
