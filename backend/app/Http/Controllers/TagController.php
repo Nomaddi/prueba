@@ -116,6 +116,10 @@ class TagController extends Controller
     {
         $tag = Tag::findOrFail($request->id);
 
+        //elimina el tag y de todos los contactos 
+        // $tag->contactos()->detach();
+
+        //No deja eliminar una etiqueta si un usuario la tiene agregada 
         // Verifica si la etiqueta está relacionada con algún contacto
         if ($tag->contactos->count() > 0) {
             // Si hay contactos que dependen de esta etiqueta, muestra un mensaje de advertencia

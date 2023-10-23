@@ -19,11 +19,11 @@
             >
 
             <div class="my-5">
-              <h5 class="text-h5">Recipients</h5>
+              <h5 class="text-h5">Destinatarios</h5>
               <v-textarea
                 v-model="recipients"
                 outlined
-                hint="Enter one recipient per line."
+                hint="Ingrese una destinatario por línea."
                 persistent-hint
               >
               </v-textarea>

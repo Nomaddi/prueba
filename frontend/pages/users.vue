@@ -2,12 +2,12 @@
   <v-row>
     <v-col>
       <v-card elevation="7" class="user-list">
-        <v-card class="pa-2" color="#424242" dark>Lista de contactos</v-card>
-        <v-flex class="text-center align-center">
-          <v-btn class="mx-2 mt-4" fab dark color="#00B0FF" @click="formNuevo()"><v-icon dark>mdi-plus</v-icon></v-btn>
-        </v-flex>
-
-        <v-card class="mx-auto mt-5 ml-5 mr-5 mb-5" color="transparent" max-width="1280" elevation="8">
+        <v-card class="pa-2 d-flex mb-6 ac" color="#424242" dark>
+          Lista de contactos
+          <v-btn dark color="#00B0FF" class="ml-auto" @click="formNuevo()"><v-icon dark>mdi-plus</v-icon> Agregar
+            contacto</v-btn>
+        </v-card>
+        <!-- <v-card class="mx-auto mt-5 ml-5 mr-5 mb-5" color="transparent" max-width="1280" elevation="8">
           <v-simple-table class="mt-5">
             <template #default>
               <thead>
@@ -33,10 +33,6 @@
                     </v-chip>
                   </td>
                   <td>{{ contactoItem.notas }}</td>
-
-
-                  <!-- <td><v-chip class="ma-2" :color="tagsItem.color">{{ tagsItem.color }}</v-chip></td> -->
-
                   <td class="text-center">
                     <v-btn small fab dark color="#00BCD4"
                       @click="formEditar(contactoItem.id, contactoItem.nombre, contactoItem.apellido, contactoItem.correo, contactoItem.telefono, contactoItem.tags, contactoItem.notas,)">
@@ -50,6 +46,31 @@
               </tbody>
             </template>
           </v-simple-table>
+        </v-card> -->
+
+        <v-card>
+          <v-card-title>
+            Contactos
+            <v-spacer></v-spacer>
+            <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
+              hide-details></v-text-field>
+          </v-card-title>
+          <v-data-table :headers="headers" :items="contactos" :search="search" class="elevation-1">
+            <template #[`item.etiquetas`]="{ item }">
+              <v-chip class="ma-2" size="x-small" v-for="tag in item.tags" :key="tag.id" :color="tag.color">
+                {{ tag.nombre }}
+              </v-chip>
+            </template>
+            <template #[`item.actions`]="{ item }">
+              <v-btn small fab dark color="#00BCD4"
+                @click="formEditar(item.id, item.nombre, item.apellido, item.correo, item.telefono, item.tags, item.notas,)">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn small fab dark color="#E53935" @click="borrar(item.id)">
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
         </v-card>
 
         <!-- Componente de Diálogo para CREAR y EDITAR -->
@@ -117,6 +138,7 @@ import Swal from 'sweetalert2';
 export default {
   data() {
     return {
+      search: '',
       bindProps: {
         enabledCountryCode: true,
         autocomplete: "true",
@@ -154,7 +176,20 @@ export default {
       ],
       tagRules: [
         v => (v && v.length > 0) || 'Debe selecionar una etiqueta',
-      ]
+      ],
+      headers: [
+        {
+          text: 'Nombre',
+          align: 'start',
+          value: 'nombre',
+        },
+        { text: 'Apellido', value: 'apellido' },
+        { text: 'Correo', value: 'correo' },
+        { text: 'Celular', value: 'telefono' },
+        { text: 'Etiquetas', value: 'etiquetas' },
+        { text: 'Notas', value: 'notas' },
+        { text: 'Acción', value: 'actions', sortable: false },
+      ],
     }
   },
   created() {
@@ -304,5 +339,4 @@ export default {
 }
 </script>
 
-<style>
-</style>
+<style></style>
