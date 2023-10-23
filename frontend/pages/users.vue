@@ -100,8 +100,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <!-- <v-btn color="blue-grey" dark @click="dialog = false">Cancelar</v-btn> -->
-                <v-btn color="blue-grey" dark @click="cancelar()">Cancelar</v-btn>
+                <v-btn color="blue-grey" dark @click="dialog = false">Cancelar</v-btn>
                 <v-btn color="blue darken-2" dark type="submit">Guardar</v-btn>
               </v-card-actions>
             </v-form>
@@ -141,7 +140,7 @@ export default {
       },
       nombreRules: [
         v => !!v || 'Campo es obligatorio',
-        v => (v && v.length <= 10) || 'Name must be less than 10 characters',
+        v => (v && v.length <= 10) || 'Solo se admiten 10 caracteres',
       ],
       correoRules: [
         v => !!v || 'Correo es obligatorio',
@@ -149,8 +148,9 @@ export default {
       ],
       telefonoRules: [
         v => !!v || 'Celular es obligatorio',
-        v => (/[0-9-]+/.test(v)) || 'Un celular correcto debe contener más de 10 numeros',
-        v => (v && this.phone.isValid) || 'No es valido',
+        v => (/[0-9-]+/.test(v)) || 'Solo se admiten numeros',
+        v => (v && v.length > 14) || 'Un numero debe tener más de 9 numeros',
+        v => /\s/.test(v) || 'no se permiten espacios'
       ],
       tagRules: [
         v => (v && v.length > 0) || 'Debe selecionar una etiqueta',
@@ -240,7 +240,7 @@ export default {
         showCancelButton: true,
       }).then((result) => {
         if (result.isConfirmed) {
-          this.$axios.delete('tags/' + id)
+          this.$axios.delete('contactos/' + id)
             .then(response => {
               if (response.data.success) {
                 Swal.fire('¡Eliminado!', response.data.message, 'success');
@@ -257,7 +257,7 @@ export default {
             })
             .catch(error => {
               alert(error);
-              Swal.fire('Error', 'No se pudo eliminar la etiqueta', 'error');
+              Swal.fire('Error', 'No se pudo eliminar el contacto', 'error');
             });
         } else if (result.isDenied) {
           alert(result.isDenied);
@@ -298,13 +298,7 @@ export default {
       this.operacion = 'editar';
     },
     onInput({ number, isValid, country }) {
-      this.phone.isValid = isValid;
-      this.phone.country = country;
       this.contacto.telefono = number.international;
-    },
-    cancelar() {
-      this.$refs.formValidate.resetValidation()
-      this.dialog = false;
     }
   }
 }

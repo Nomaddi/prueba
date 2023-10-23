@@ -3,8 +3,8 @@
     <v-col>
       <v-card elevation="7" class="tags-list">
         <v-card class="pa-2 d-flex mb-6 ac" color="#424242" dark>
-          Lista de tags
-          <v-btn dark color="#00B0FF" @click="formNuevo()" class="ml-auto"><v-icon dark>mdi-plus</v-icon> Agregar
+          Lista de etiquetas
+          <v-btn dark color="#00B0FF" class="ml-auto" @click="formNuevo()"><v-icon dark>mdi-plus</v-icon> Agregar
             etiqueta</v-btn>
         </v-card>
         <!-- <v-card class="mx-auto mt-5 ml-5 mr-5 mb-5" color="transparent" max-width="1280" elevation="8">
@@ -41,16 +41,16 @@
         </v-card> -->
         <v-card>
           <v-card-title>
-            Tags
+            Etiquetas
             <v-spacer></v-spacer>
-            <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line
+            <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
               hide-details></v-text-field>
           </v-card-title>
           <v-data-table :headers="headers" :items="tags" :search="search" class="elevation-1">
-            <template v-slot:[`item.colores`]="{ item }">
+            <template #[`item.colores`]="{ item }">
               <v-chip class="ma-2" :color="item.color">{{ item.color }}</v-chip>
             </template>
-            <template v-slot:[`item.actions`]="{ item }">
+            <template #[`item.actions`]="{ item }">
               <v-btn small fab dark color="#00BCD4"
                 @click="formEditar(item.id, item.nombre, item.descripcion, item.color)">
                 <v-icon>mdi-pencil</v-icon>
@@ -116,7 +116,7 @@ export default {
         },
         { text: 'Descripcion', value: 'descripcion' },
         { text: 'Color', value: 'colores' },
-        { text: 'Actions', value: 'actions', sortable: false },
+        { text: 'Acción', value: 'actions', sortable: false },
       ],
 
     }
@@ -180,7 +180,7 @@ export default {
 
                 // También puedes mostrar información sobre los contactos relacionados
                 if (response.data.related_contacts) {
-                  console.log('Contactos relacionados:', response.data.related_contacts);
+                  alert('Contactos relacionados:'+ response.data.related_contacts);
                 }
               }
             })
