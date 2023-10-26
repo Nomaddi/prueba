@@ -80,6 +80,11 @@ export default {
           title: 'Tags',
           to: '/Tags',
         },
+        {
+          icon: 'mdi-arrange-bring-forward',
+          title: 'Configuracion',
+          to: '/config',
+        },
 
       ],
       miniVariant: false,

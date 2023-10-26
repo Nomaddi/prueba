@@ -123,6 +123,8 @@ export default {
     messages: [],
     message: '',
     selectedChat: {},
+    attrs: {}, // Agregar esta línea para definir "attrs"
+    on: {}     // Agregar esta línea para definir "on"
   }),
   created() {
     this.loadMessages()

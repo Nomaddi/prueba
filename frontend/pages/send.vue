@@ -4,28 +4,34 @@
       <v-card elevation="7">
         <v-card class="pa-2" color="#424242" dark>Plantillas</v-card>
         <div class="pa-4">
-          <v-select
-            v-model="item"
-            :items="items"
-            label="Templates"
-            outlined
-            @change="selectTemplate"
-          ></v-select>
+          <v-select v-model="item" :items="items" label="Templates" outlined @change="selectTemplate"></v-select>
 
           <template v-if="template">
             <v-divider class="mb-4"></v-divider>
-            <v-alert v-if="template.status !== 'APPROVED'" type="error"
-              >Template unapproved and can't be used to send messages.</v-alert
-            >
+            <v-alert v-if="template.status !== 'APPROVED'" type="error">Template unapproved and can't be used to send
+              messages.</v-alert>
+
+            <v-select v-model="tagSelect" :items="tags" label="Selecciona una etiqueta" outlined item-text="nombre" item-value="key" return-object required
+              @change="mostrarContactosPorEtiqueta">
+              <template #selection="{ item }">
+                <v-chip>
+                  <span>{{ item.nombre }}</span>
+                </v-chip>
+              </template>
+            </v-select>
+            <!-- Aquí muestras la lista de contactos asociados a la etiqueta seleccionada -->
+            <div v-if="contactos.length > 0">
+              <h2>Total contactos,con la etiqueta seleccionada :  {{ contactos.length }}</h2>
+
+              <h2>Total contactos,con depuración de numeros repetidos :  {{ filteredContacts.length }}</h2>
+              <!-- <ul>
+                <li v-for="contacto in filteredContacts" :key="contacto.id">{{ filteredContacts.length }}</li>
+              </ul> -->
+            </div>
 
             <div class="my-5">
               <h5 class="text-h5">Destinatarios</h5>
-              <v-textarea
-                v-model="recipients"
-                outlined
-                hint="Ingrese una destinatario por línea."
-                persistent-hint
-              >
+              <v-textarea v-model="recipients" outlined hint="Ingrese una destinatario por línea." persistent-hint>
               </v-textarea>
             </div>
 
@@ -34,25 +40,15 @@
               <p v-if="template.header.format == 'TEXT'">
                 {{ template.header.text }}
               </p>
-              <v-text-field
-                v-else
-                v-model="header_url"
-                outlined
-                class="mt-2"
-                :label="`${template.header.format} URL`"
-              ></v-text-field>
+              <v-text-field v-else v-model="header_url" outlined class="mt-2"
+                :label="`${template.header.format} URL`"></v-text-field>
             </div>
 
             <div v-if="template.body" class="my-5">
               <h5 class="text-h5">Body</h5>
               <p class="pre-wrap">{{ template.body }}</p>
-              <v-text-field
-                v-for="(placeholder, index) in template.body_placeholders"
-                :key="index"
-                v-model="body_placeholders[index]"
-                outlined
-                :label="placeholder.text"
-              ></v-text-field>
+              <v-text-field v-for="(placeholder, index) in template.body_placeholders" :key="index"
+                v-model="body_placeholders[index]" outlined :label="placeholder.text"></v-text-field>
             </div>
 
             <div v-if="template.footer" class="my-5">
@@ -70,15 +66,7 @@
             </div>
 
             <div class="mt-8">
-              <v-btn
-                block
-                large
-                color="teal darken-1"
-                dark
-                :loading="sending"
-                @click="send"
-                >Send</v-btn
-              >
+              <v-btn block large color="teal darken-1" dark :loading="sending" @click="send">Send</v-btn>
             </div>
           </template>
         </div>
@@ -88,6 +76,8 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+
 export default {
   data: () => ({
     item: '',
@@ -98,9 +88,30 @@ export default {
     body_placeholders: [],
     header_url: null,
     sending: false,
+    tagSelect: [],
+    tags: [],
+    contactos: [],
   }),
   created() {
-    this.loadTemplates()
+    this.loadTemplates();
+    this.loadTags();
+  },
+  computed: {
+    filteredContacts() {
+      // Crea un conjunto para almacenar números de teléfono únicos
+      const uniquePhoneNumbers = new Set();
+
+      // Filtra duplicados y almacena números de teléfono únicos en el conjunto
+      const filtered = this.contactos.filter((contacto) => {
+        if (!uniquePhoneNumbers.has(contacto.telefono)) {
+          uniquePhoneNumbers.add(contacto.telefono);
+          return true;
+        }
+        return false;
+      });
+
+      return filtered;
+    },
   },
   methods: {
     loadTemplates() {
@@ -113,6 +124,16 @@ export default {
           }
         })
       })
+    },
+    loadTags() {
+      this.$axios.get('tags/')
+        .then(response => {
+          this.tags = response.data;
+        })
+        .catch(error => {
+          alert(error);
+          Swal.fire('Error', 'No se pueden cargar los tags', 'error');
+        });
     },
     selectTemplate() {
       this.template = this.templates[this.item]
@@ -133,7 +154,8 @@ export default {
       this.$axios
         .post('/send-message-templates', payload)
         .then(({ data }) => {
-          alert('Message(s) sucessfully sent!')
+          alert('Message(s) sucessfully sent!');
+          console.log(payload)
         })
         .catch((err) => {
           alert(err)
@@ -168,9 +190,22 @@ export default {
       }
       return matches
     },
+    mostrarContactosPorEtiqueta() {
+      if (this.tagSelect) {
+        this.contactos = this.tagSelect.contactos;
+        // console.log(this.contactos);
+      } else {
+        console.log("na que ver");
+      }
+    },
+    actualizarDestinatarios() {
+      this.recipients = this.filteredContacts.map((contacto) => contacto.telefono).join('\n');
+    },
+  },
+  watch: {
+    filteredContacts: 'actualizarDestinatarios', // Actualizar destinatarios cuando cambie filteredContacts
   },
 }
 </script>
 
-<style>
-</style>
+<style></style>
