@@ -334,16 +334,28 @@ class MessageController extends Controller
             $messageData = [];
             if (!empty($input['header_type']) && !empty($input['header_url'])) {
                 $type = strtolower($input['header_type']);
-                $payload['template']['components'][] = [
-                    'type' => 'header',
-                    'parameters' => [[
-                        'type' => $type,
-                        $type => [
-                            "filename" => "Contrato.pdf",
-                            'link' => $input['header_url'],
-                        ]
-                    ]],
-                ];
+                if ($type == 'document') {
+                    $payload['template']['components'][] = [
+                        'type' => 'header',
+                        'parameters' => [[
+                            'type' => $type,                        
+                            $type => [
+                                "filename" => "Contrato.pdf",
+                                'link' => $input['header_url'],
+                            ]
+                        ]],
+                    ];
+                }else{
+                    $payload['template']['components'][] = [
+                        'type' => 'header',
+                        'parameters' => [[
+                            'type' => $type,                        
+                            $type => [
+                                'link' => $input['header_url'],
+                            ]
+                        ]],
+                    ];
+                }
                 $messageData = [
                     'header_type' => $input['header_type'],
                     'header_url' => $input['header_url'],

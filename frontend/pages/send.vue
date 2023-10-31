@@ -11,8 +11,8 @@
             <v-alert v-if="template.status !== 'APPROVED'" type="error">Template unapproved and can't be used to send
               messages.</v-alert>
 
-            <v-select v-model="tagSelect" :items="tags" label="Selecciona una etiqueta" outlined item-text="nombre" item-value="key" return-object required
-              @change="mostrarContactosPorEtiqueta">
+            <v-select v-model="tagSelect" :items="tags" label="Selecciona una etiqueta" outlined item-text="nombre"
+              item-value="key" return-object required @change="mostrarContactosPorEtiqueta">
               <template #selection="{ item }">
                 <v-chip>
                   <span>{{ item.nombre }}</span>
@@ -21,12 +21,9 @@
             </v-select>
             <!-- Aquí muestras la lista de contactos asociados a la etiqueta seleccionada -->
             <div v-if="contactos.length > 0">
-              <h2>Total contactos,con la etiqueta seleccionada :  {{ contactos.length }}</h2>
+              <h2>Total contactos,con la etiqueta seleccionada : {{ contactos.length }}</h2>
 
-              <h2>Total contactos,con depuración de numeros repetidos :  {{ filteredContacts.length }}</h2>
-              <!-- <ul>
-                <li v-for="contacto in filteredContacts" :key="contacto.id">{{ filteredContacts.length }}</li>
-              </ul> -->
+              <h2>Total contactos,con depuración de numeros repetidos : {{ filteredContacts.length }}</h2>
             </div>
 
             <div class="my-5">
@@ -48,7 +45,47 @@
               <h5 class="text-h5">Body</h5>
               <p class="pre-wrap">{{ template.body }}</p>
               <v-text-field v-for="(placeholder, index) in template.body_placeholders" :key="index"
-                v-model="body_placeholders[index]" outlined :label="placeholder.text"></v-text-field>
+                v-model="body_placeholders[index]" outlined :label="placeholder.text">
+                <template #prepend>
+                  <v-tooltip location="bottom">
+                    <template #activator="{ props }">
+                      <v-icon v-bind="props" icon="mdi-help-circle-outline"></v-icon>
+                    </template>
+
+                    I'm a tooltip
+                  </v-tooltip>
+                </template>
+
+                <template #append-inner>
+                  <v-fade-transition leave-absolute>
+                    <v-progress-circular v-if="loading" color="info" indeterminate size="24"></v-progress-circular>
+
+                    <img v-else height="24" width="24" src="https://cdn.vuetifyjs.com/images/logos/v-alt.svg" alt="">
+                  </v-fade-transition>
+                </template>
+
+                <template #append>
+                  <v-menu>
+                    <template #activator="{ props }">
+                      <v-btn v-bind="props" class="mt-n2">
+                        <v-icon icon="mdi-menu" start></v-icon>
+
+                        Menu
+                      </v-btn>
+                    </template>
+
+                    <v-card>
+                      <v-card-text class="pa-6">
+                        <v-btn color="primary" size="large" variant="text" @click="clickMe">
+                          <v-icon icon="mdi-target" start></v-icon>
+
+                          Click me
+                        </v-btn>
+                      </v-card-text>
+                    </v-card>
+                  </v-menu>
+                </template>
+              </v-text-field>
             </div>
 
             <div v-if="template.footer" class="my-5">
@@ -91,6 +128,9 @@ export default {
     tagSelect: [],
     tags: [],
     contactos: [],
+    contactoFiltrados: [],
+    message: 'Hey!',
+    loading: false,
   }),
   created() {
     this.loadTemplates();
@@ -199,13 +239,28 @@ export default {
       }
     },
     actualizarDestinatarios() {
-      this.recipients = this.filteredContacts.map((contacto) => contacto.telefono).join('\n');
+      // this.recipients = this.filteredContacts.map((contacto) => contacto.telefono).join('\n');
+
+      this.contactoFiltrados = this.filteredContacts;
+      this.recipients = this.contactoFiltrados.map((contacto) => contacto.telefono).join('\n');
+
+      console.log(this.contactoFiltrados);
+    },
+    clickMe() {
+      this.loading = true
+      this.message = 'Wait for it...'
+      setTimeout(() => {
+        this.loading = false
+        this.message = `You've clicked me!`
+      }, 2000)
     },
   },
   watch: {
     filteredContacts: 'actualizarDestinatarios', // Actualizar destinatarios cuando cambie filteredContacts
   },
 }
+
+
 </script>
 
 <style></style>
