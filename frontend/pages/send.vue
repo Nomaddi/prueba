@@ -46,40 +46,27 @@
               <p class="pre-wrap">{{ template.body }}</p>
               <v-text-field v-for="(placeholder, index) in template.body_placeholders" :key="index"
                 v-model="body_placeholders[index]" outlined :label="placeholder.text">
-                <template #prepend>
-                  <v-tooltip location="bottom">
-                    <template #activator="{ props }">
-                      <v-icon v-bind="props" icon="mdi-help-circle-outline"></v-icon>
-                    </template>
-
-                    I'm a tooltip
-                  </v-tooltip>
-                </template>
-
-                <template #append-inner>
-                  <v-fade-transition leave-absolute>
-                    <v-progress-circular v-if="loading" color="info" indeterminate size="24"></v-progress-circular>
-
-                    <img v-else height="24" width="24" src="https://cdn.vuetifyjs.com/images/logos/v-alt.svg" alt="">
-                  </v-fade-transition>
-                </template>
-
                 <template #append>
-                  <v-menu>
-                    <template #activator="{ props }">
-                      <v-btn v-bind="props" class="mt-n2">
-                        <v-icon icon="mdi-menu" start></v-icon>
-
-                        Menu
+                  <v-menu v-model="menuOpen[index]">
+                    <template #activator="{ on, attrs }">
+                      <v-btn v-bind="attrs" v-on="on" class="mt-n2">
+                        <v-icon start>mdi-menu</v-icon>
+                        Menú
                       </v-btn>
                     </template>
-
                     <v-card>
                       <v-card-text class="pa-6">
-                        <v-btn color="primary" size="large" variant="text" @click="clickMe">
+                        <v-btn color="primary" size="large" variant="text" @click="clickMe(index, 'nombre')">
                           <v-icon icon="mdi-target" start></v-icon>
-
-                          Click me
+                          Nombre
+                        </v-btn>
+                        <v-btn color="primary" size="large" variant="text" @click="clickMe(index, 'apellido')">
+                          <v-icon icon="mdi-target" start></v-icon>
+                          Apellido
+                        </v-btn>
+                        <v-btn color="primary" size="large" variant="text" @click="clickMe(index, 'correo')">
+                          <v-icon icon="mdi-target" start></v-icon>
+                          Correo
                         </v-btn>
                       </v-card-text>
                     </v-card>
@@ -129,8 +116,11 @@ export default {
     tags: [],
     contactos: [],
     contactoFiltrados: [],
-    message: 'Hey!',
-    loading: false,
+    message: '',
+    menuOpen: [],
+    nombre: '{{__nombre__}}',
+    apellido: '{{__apellido__}}',
+    correo: '{{__correo__}}',
   }),
   created() {
     this.loadTemplates();
@@ -246,14 +236,21 @@ export default {
 
       console.log(this.contactoFiltrados);
     },
-    clickMe() {
-      this.loading = true
-      this.message = 'Wait for it...'
-      setTimeout(() => {
-        this.loading = false
-        this.message = `You've clicked me!`
-      }, 2000)
-    },
+    clickMe(index, tipo) {
+      this.menuOpen[index] = false;
+      if (tipo === 'nombre') {
+        this.body_placeholders[index] = this.nombre;
+        this.$forceUpdate(); // Forzar la actualización
+      } else if (tipo === 'apellido') {
+        this.body_placeholders[index] = this.apellido;
+        this.$forceUpdate(); // Forzar la actualización
+      } else if (tipo === 'correo') {
+        this.body_placeholders[index] = this.correo;
+        this.$forceUpdate(); // Forzar la actualización 
+      }
+      // this.body_placeholders[index] = "You've clicked me!";
+      
+    }
   },
   watch: {
     filteredContacts: 'actualizarDestinatarios', // Actualizar destinatarios cuando cambie filteredContacts
